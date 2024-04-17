@@ -28,6 +28,10 @@ function App() {
     const [projects, setProjects] = useState([]);
     const [selectedProjectKey, setSelectedProjectKey] = useState(null);
     const [sprintsAndIssues, setSprintsAndIssues] = useState([]);
+    const [boardIds, setBoardIds] = useState([]);
+    const [sprintIds, setsprintIds] = useState([]);
+        const [sprintsIssues, setSprintsIssues] = useState([]);
+        const [unique, setunique] = useState([]);
 
     useEffect(() => {
         fetchProjects();
@@ -53,72 +57,91 @@ function App() {
         }
     };
 
+   
+  
+  useEffect(() => {
+        if (selectedProjectKey) {
+            fetchSprintsAndIssues(selectedProjectKey);
+        }
+    }, [selectedProjectKey]);
 
-    const board = async () => {
+    const fetchSprintsAndIssues = async (selectedProjectKey) => {
         try {
-            const sprintsResponse = await requestJira(`/rest/agile/1.0/board/155`, {
+            const response = await requestJira(`/rest/agile/1.0/board?projectKeyOrId=${selectedProjectKey}`, {
                 headers: {
                     'content-type': 'application/json'
                 }
             });
-            const sprintsData = await sprintsResponse.json();
-            console.log("board",sprintsData);
-            return sprintsData.values || [];
+            const boardsData = await response.json();
+            const boardIds = boardsData.values.map(board => board.id);
+            console.log("boardIds",boardIds);
+            setBoardIds(boardIds);
+             for (const boardId of boardIds) {
+             console.log("boardId",boardId);
+             fetchSprintsForBoard(boardId);
+             }
+            // Now you have the boardIds, you can proceed with further logic
         } catch (error) {
-            console.error('Error fetching sprints:', error);
-            return [];
-        }
-    };
-    const fetchSprints = async (boardId) => {
-        try {
-            const sprintsResponse = await api.asUser().requestJira(route`/rest/agile/latest/1.0/board/${boardId}/sprint`);
-            const sprintsData = await sprintsResponse.json();
-            console.log("sprintsData",sprintsData);
-            return sprintsData.values || [];
-        } catch (error) {
-            console.error('Error fetching sprints:', error);
-            return [];
+            console.error("Error fetching sprints and issues:", error);
         }
     };
 
-    const fetchIssuesForSprint = async (boardId, sprintId) => {
+   const fetchSprintsForBoard = async (boardId) => {
+   
         try {
-            const issuesResponse = await api.asUser().requestJira(route`/rest/agile/1.0/board/${boardId}/sprint/${sprintId}/issue`);
-            const issuesData = await issuesResponse.json();
-            return issuesData.issues.map(issue => issue.key);
-        } catch (error) {
-            console.error('Error fetching issues for sprint:', error);
-            return [];
-        }
-    };
-
-    const fetchSprintsAndIssues = async (boardId) => {
-        try {
-            const sprints = await fetchSprints(boardId);
-            const promises = sprints.map(async sprint => {
-                const issues = await fetchIssuesForSprint(boardId, sprint.id);
-                return { sprintId: sprint.id, issueKeys: issues };
+            const response = await requestJira(`/rest/agile/1.0/board/${boardId}/sprint`, {
+                headers: {
+                    'content-type': 'application/json'
+                }
             });
-            const allSprintsAndIssues = await Promise.all(promises);
-            return allSprintsAndIssues;
+            const sprintsData = await response.json();
+            //const sprintIds = sprintsData.values.map(sprint => sprint.id);
+            const sIds = sprintsData.values.map(sprint => sprint.id);
+	    setsprintIds(sIds);
+            console.log("sprintIds",sIds);
+            console.log("sprintsData",sprintsData);
+            for (const Id of sIds) {
+             console.log("boardId",Id);
+             fetchSprintsIssues(Id);
+             }
+            // Now you have the sprints data, you can handle it accordingly
         } catch (error) {
-            console.error('Error fetching sprints and issues:', error);
-            return [];
+            console.error("Error fetching sprints:", error);
         }
     };
 
+   console.log("sprintIds outside",sprintIds);
+   
+     const fetchSprintsIssues = async (sprintId) => {
+   
+        try {
+            const response = await requestJira(`/rest/agile/1.0/sprint/${sprintId}/issue`, {
+                headers: {
+                    'content-type': 'application/json'
+                }
+            });
+            const sprintsData = await response.json();
+            console.log("sprintsData",sprintsData);
+            setSprintsIssues(prevState => [...prevState, { sprintId: sprintId, issues: sprintsData.issues }]);
+            //console.log("sprintsIssues",sprintsIssues);  
+        } catch (error) {
+            console.error("Error fetching sprints:", error);
+        }
+    };
+  console.log("sprintsIssues",sprintsIssues); 
+ 
     const handleProjectChange = async (e) => {
         const selectedProjectKey = e.target.value;
         setSelectedProjectKey(selectedProjectKey);
-        const board1 = await board();
+        //const board1 = await board();
         
-        if (selectedProjectKey) {
+        /*if (selectedProjectKey) {
             
                     const sprintsAndIssues = await fetchSprintsAndIssues(155);
                     setSprintsAndIssues(sprintsAndIssues);
                 
             
-        }
+        }*/
     };
 
     return (
@@ -136,23 +159,29 @@ function App() {
             </label>
             <br />
             <h2>Sprints and Issues</h2>
-            <div>
-                {sprintsAndIssues.map((sprintAndIssues, index) => (
-                    <div key={index}>
-                        <h3>Sprint {sprintAndIssues.sprintId}</h3>
-                        <ul>
-                            {sprintAndIssues.issueKeys.map((issueKey, index) => (
-                                <li key={index}>{issueKey}</li>
-                            ))}
-                        </ul>
-                    </div>
-                ))}
-            </div>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sprint ID</th>
+                        <th>Issues</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {sprintsIssues.map((sprintsIssues, index) => (
+                        sprintsIssues.issues.map((issue, i) => (
+                            <tr key={index + '-' + i}>
+                                <td>{sprintsIssues.sprintId}</td>
+                                <td>{issue.key}</td>
+                            </tr>
+                        ))
+                    ))}
+                </tbody>
+            </table>
         </div>
+    </div>
     );
 }
 
 export default App;
-
-
 
