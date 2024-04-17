@@ -18,34 +18,30 @@ app:
 permissions:
   content:
     styles:
-      - 'unsafe-inline'
+      - unsafe-inline
     scripts:
-      - 'unsafe-hashes'
+      - unsafe-hashes
   external:
     images:
-      - '*.giphy.com'
+      - "*.giphy.com"
     fetch:
       backend:
-        - '*.cambridgetech.atlassian.net'
+        - "*.cambridgetech.atlassian.net"
   scopes:
-    - 'manage:jira-configuration'
-    - 'read:jira-work'   
-    - 'write:jira-work' 
-    - 'write:sprint:jira-software'
-    - 'read:jira-user'               
-    - 'read:application-role:jira'   
-    - 'read:group:jira'              
-    - 'read:user:jira'               
-    - 'read:avatar:jira' 
-    - 'read:jql:jira'
-    - 'read:board-scope:jira-software'
-    - 'read:sprint:jira-software'
-    - 'read:issue:jira-software'
-    - 'read:board-scope.admin:jira-software'
-    - 'read:epic:jira-software'
-    - 'read:issue-details:jira'  
-    - 'read:project:jira'
-    
-
-
-     
+    - manage:jira-configuration
+    - read:jira-work
+    - write:jira-work
+    - write:sprint:jira-software
+    - read:jira-user
+    - read:application-role:jira
+    - read:group:jira
+    - read:user:jira
+    - read:avatar:jira
+    - read:jql:jira
+    - read:board-scope:jira-software
+    - read:sprint:jira-software
+    - read:issue:jira-software
+    - read:board-scope.admin:jira-software
+    - read:epic:jira-software
+    - read:issue-details:jira
+    - read:project:jira
