@@ -1,0 +1,51 @@
+modules:
+  jira:projectPage:
+    - key: metrics-hello-world-project-page
+      resource: main
+      resolver:
+        function: resolver
+      title: Metrics
+  function:
+    - key: resolver
+      handler: index.handler
+resources:
+  - key: main
+    path: static/hello-world/build
+    tunnel:
+      port: 3000
+app:
+  id: ari:cloud:ecosystem::app/6b76dbe8-7f0d-4208-9a4c-f0523d88b892
+permissions:
+  content:
+    styles:
+      - 'unsafe-inline'
+    scripts:
+      - 'unsafe-hashes'
+  external:
+    images:
+      - '*.giphy.com'
+    fetch:
+      backend:
+        - '*.cambridgetech.atlassian.net'
+  scopes:
+    - 'manage:jira-configuration'
+    - 'read:jira-work'   
+    - 'write:jira-work' 
+    - 'write:sprint:jira-software'
+    - 'read:jira-user'               
+    - 'read:application-role:jira'   
+    - 'read:group:jira'              
+    - 'read:user:jira'               
+    - 'read:avatar:jira' 
+    - 'read:jql:jira'
+    - 'read:board-scope:jira-software'
+    - 'read:sprint:jira-software'
+    - 'read:issue:jira-software'
+    - 'read:board-scope.admin:jira-software'
+    - 'read:epic:jira-software'
+    - 'read:issue-details:jira'  
+    - 'read:project:jira'
+    
+
+
+     
